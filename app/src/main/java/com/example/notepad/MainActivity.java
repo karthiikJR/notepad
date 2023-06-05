@@ -1,9 +1,11 @@
 package com.example.notepad;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +20,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
@@ -83,6 +86,32 @@ public class MainActivity extends AppCompatActivity {
                 intentView.putExtra("itemContent",position);
                 startActivity(intentView);
 
+            }
+        });
+        items.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                new AlertDialog.Builder(MainActivity.this)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle("Are you sure?")
+                        .setMessage("Do you want to delete?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                addItems.remove(position);
+                                actualData.remove(position);
+                                arrayAdapter.notifyDataSetChanged();
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putStringSet("addItems", new HashSet<>(addItems));
+                                editor.putStringSet("actualData", new HashSet<>(actualData));
+                                editor.apply();
+                            }
+                        })
+                        .setNegativeButton("No",null)
+                        .show();
+
+                return true;
             }
         });
     }
